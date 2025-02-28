@@ -1,0 +1,35 @@
+FROM php:8.4-fpm
+
+RUN apt update && apt install -y \
+    nginx \
+    git \
+    unzip \
+    libzip-dev \
+    libonig-dev \
+    libxml2-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    wget \
+    apache2-utils \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd pdo_mysql mbstring zip exif pcntl
+
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+WORKDIR /var/www/html
+
+COPY . .
+
+RUN composer install --optimize-autoloader
+
+RUN chown -R www-data:www-data storage bootstrap/cache
+
+COPY .docker/nginx/nginx.conf /etc/nginx/nginx.conf
+
+COPY .docker/nginx/nginx-laravel.conf /etc/nginx/sites-available/laravel.conf
+
+EXPOSE 80
+
+CMD php-fpm --daemonize && \
+nginx -g "daemon off;" 
