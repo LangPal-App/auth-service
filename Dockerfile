@@ -25,11 +25,25 @@ RUN composer install --optimize-autoloader
 
 RUN chown -R www-data:www-data storage bootstrap/cache
 
+# Install Prometheus
+RUN wget https://github.com/prometheus/prometheus/releases/download/v2.47.0/prometheus-2.47.0.linux-amd64.tar.gz -O /tmp/prometheus.tar.gz && \
+    tar -xzf /tmp/prometheus.tar.gz -C /opt && \
+    mv /opt/prometheus-2.47.0.linux-amd64 /opt/prometheus && \
+    rm /tmp/prometheus.tar.gz
+
+COPY .docker/prometheus.yaml /opt/prometheus/prometheus.yaml
+
 COPY .docker/nginx/nginx.conf /etc/nginx/nginx.conf
 
 COPY .docker/nginx/nginx-laravel.conf /etc/nginx/sites-available/laravel.conf
 
-EXPOSE 80
+RUN mkdir -p /etc/nginx/prometheus
+COPY .docker/nginx/nginx-prometheus.conf /etc/nginx/prometheus/nginx-prometheus.conf
+
+RUN htpasswd -cb /etc/nginx/prometheus/.htpasswd admin password123
+
+EXPOSE 80 9091
 
 CMD php-fpm --daemonize && \
-nginx -g "daemon off;" 
+    nginx -g "daemon off;" & \
+    /opt/prometheus/prometheus --config.file=/opt/prometheus/prometheus.yaml
