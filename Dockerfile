@@ -23,6 +23,8 @@ COPY . .
 
 RUN composer install --optimize-autoloader
 
+RUN php artisan test
+
 RUN chown -R www-data:www-data storage bootstrap/cache
 
 COPY .docker/nginx/nginx.conf /etc/nginx/nginx.conf
@@ -30,4 +32,4 @@ COPY .docker/nginx/nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80
 
 CMD php-fpm --daemonize && \
-nginx -g "daemon off;" 
+    nginx -g "daemon off;" 
