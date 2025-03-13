@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+use Carbon\Carbon;
+
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -45,5 +47,17 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function save(array $options = [])
+    {
+        $is_new = !$this->id;
+
+        if ($is_new) {
+            $this->email_verification_otp = generateRandomNumbers(6);
+            $this->email_verification_otp_expires_at = Carbon::now()->addHour();
+        }
+
+        return parent::save($options);
     }
 }
