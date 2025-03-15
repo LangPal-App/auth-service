@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('name', 32);
             $table->string('username', 32);
-            $table->string('email')->unique();
+            $table->string('email', 64)->unique();
             $table->string('email_verification_otp', 6);
             $table->timestamp('email_verification_otp_expires_at');
             $table->timestamp('email_verified_at')->nullable();
