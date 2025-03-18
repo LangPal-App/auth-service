@@ -13,8 +13,11 @@ return new class extends Migration
             $table->string('name', 32);
             $table->string('username', 32);
             $table->string('email', 64)->unique();
-            $table->string('email_verification_otp', 6);
-            $table->timestamp('email_verification_otp_expires_at');
+            $table->string('email_verification_otp', 6)->nullable();
+            $table->timestamp('email_verification_otp_created_at')->nullable();
+            $table->timestamp('email_verification_otp_expires_at')->nullable();
+            $table->unsignedTinyInteger('email_verification_otp_attempts')->default(0);
+            $table->timestamp('email_verification_otp_blocked_until')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('photo')->nullable();
             $table->text('bio')->nullable();
