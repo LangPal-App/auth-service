@@ -23,18 +23,9 @@ class AuthController extends Controller
             'email' => $request->email,
             'password'  => Hash::make($request->password),
         ]);
-
-        $token = JWTAuth::fromUser($user);
-
+        
         event(new EmailRequested($user, 'email_verification_otp'));
 
-        return $this->success(
-            'User registered successfully',
-            [
-                'user' => new UserResource($user),
-                'token' => $token
-            ],
-            201
-        );
+        return $this->success('User registered successfully. Please check your email for verification.', [], 201);
     }
 }
