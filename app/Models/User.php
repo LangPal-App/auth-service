@@ -8,8 +8,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-use Carbon\Carbon;
-
 class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -63,17 +61,5 @@ class User extends Authenticatable implements JWTSubject
             'username' => $this->username,
             'email' => $this->email,
         ];
-    }
-
-    public function save(array $options = [])
-    {
-        $is_new = !$this->id;
-
-        if ($is_new) {
-            $this->email_verification_otp = generateRandomNumbers(6);
-            $this->email_verification_otp_expires_at = Carbon::now()->addHour();
-        }
-
-        return parent::save($options);
     }
 }
