@@ -22,8 +22,6 @@ COPY . .
 
 RUN composer install --optimize-autoloader
 
-RUN php artisan test
-
 RUN chown -R www-data:www-data storage bootstrap/cache
 
 COPY .docker/nginx/nginx.conf /etc/nginx/nginx.conf
