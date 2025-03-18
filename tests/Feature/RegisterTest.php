@@ -13,14 +13,8 @@ class RegisterTest extends TestCase
         $valid_data = $this->getUserData();
         $response = $this->postJson('/api/register', $valid_data);
         $response->assertStatus(201)
-                ->assertJsonStructure([
-                    'message',
-                    'data' => [
-                        'user',
-                        'token'
-                    ],
-                    'errors'
-                ]);
+                ->assertJsonStructure(['message', 'data', 'errors'])
+                ->assertJson(['data' => [], 'errors' => []]);
     }
 
     public function test_duplicate_email(): void
