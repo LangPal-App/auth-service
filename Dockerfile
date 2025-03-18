@@ -11,7 +11,7 @@ RUN apt update && apt install -y \
     libjpeg-dev \
     libfreetype6-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd pdo_mysql mbstring zip exif pcntl \
+    && docker-php-ext-install -j$(nproc) gd pdo_mysql mbstring zip exif pcntl sockets \
     && apt clean && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
