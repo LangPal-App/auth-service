@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 abstract class Controller
 {
-    protected function success(string $message, $data, int $status = 200)
+    protected function success(string $message, $data = [], int $status = 200)
     {
         return response()->json([
             'message' => $message,
@@ -13,7 +13,7 @@ abstract class Controller
         ], $status);
     }
 
-    protected function failed(string $message, $errors, int $status = 500)
+    protected function failed(string $message, $errors = [], int $status = 500)
     {
         return response()->json([
             'message' => $message,
