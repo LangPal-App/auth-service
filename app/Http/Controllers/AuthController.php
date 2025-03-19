@@ -29,6 +29,37 @@ class AuthController extends Controller
         return $this->success('User registered successfully. Please check your email for verification.', [], 201);
     }
 
+    public function verifyOtp(Request $request)
+    {
+        $user = User::where([
+            'email' => $request->email,
+            'email_verification_otp' => $request->otp,
+        ])->first();
+
+        if (!$user) {
+            return $this->failed('Wrong OTP', [], 400);
+        }
+
+        if ($user->email_verified_at) {
+            $user->email_verification_otp_blocked_until = Carbon::now()->addDay();
+            $user->save();
+            return $this->failed('Sorry something went wrong');
+        }
+
+        if ($this->otpExpired($user)) {
+            return $this->failed('OTP has expired. Please request a new one.', [], 400);
+        }
+
+        $user->email_verified_at = now();
+        $user->save();
+        $token = JWTAuth::fromUser($user);
+
+        return $this->success("User is verified successfully.", [
+            'user' => new UserResource($user),
+            'token' => $token
+        ]);
+    }
+
     private function sendOtpVerification(User $user)
     {
         $user->email_verification_otp = generateRandomNumbers(6);
@@ -38,5 +69,10 @@ class AuthController extends Controller
         $user->save();
 
         event(new EmailRequested($user, 'email_verification_otp'));
+    }
+
+    private function otpExpired(User $user): bool
+    {
+        return now()->greaterThan($user->email_verification_otp_expires_at);
     }
 }
