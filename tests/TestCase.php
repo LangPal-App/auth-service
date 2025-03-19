@@ -16,12 +16,32 @@ abstract class TestCase extends BaseTestCase
 
     protected function createUser(): User
     {
+        $password = 'P@ssword12';
+
         $user = User::factory()->unverified()->create([
             'username' => 'testuser',
             'name'  => 'Test',
             'email' => 'test@test.com',
             'password'  => Hash::make('P@ssword12'),
         ]);
+
+        $user->plain_password = $password;
+
+        return $user;
+    }
+
+    protected function createVerifiedUser(): User
+    {
+        $password = 'P@ssword12';
+
+        $user = User::factory()->create([
+            'username' => 'testuser',
+            'name'  => 'Test',
+            'email' => 'test@test.com',
+            'password'  => Hash::make($password),
+        ]);
+
+        $user->plain_password = $password;
 
         return $user;
     }
