@@ -16,7 +16,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function createUser(): User
     {
-        $user = User::factory()->create([
+        $user = User::factory()->unverified()->create([
             'username' => 'testuser',
             'name'  => 'Test',
             'email' => 'test@test.com',
