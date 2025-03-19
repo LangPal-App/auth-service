@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\LoginRequest;
 
 use App\Models\User;
 use App\Http\Resources\UserResource;
@@ -12,6 +13,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Events\EmailRequested;
+
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -92,6 +95,30 @@ class AuthController extends Controller
         $this->sendOtpVerification($user);
 
         return $this->success('OTP has been sent to your email.');
+    }
+
+    public function login(LoginRequest $request)
+    {
+        $credentials = $request->only('email', 'password');
+
+        if (!$token = JWTAuth::attempt($credentials)) {
+            Log::warning('User login failed', ['email' => $request->email]);
+            return $this->failed('Wrong email or password', [], 404);
+        }
+
+        $user = auth()->user();
+
+        if (!$user->email_verified_at) {
+            Log::warning('User login failed | Unverified user', ['email' => $request->email]);
+            return $this->failed('Account not verified please verify your account first.', [], 403);
+        }
+
+        Log::info('User logged in successfully', ['email' => $request->email]);
+
+        return $this->success("User logged in successfully.", [
+            'user' => new UserResource($user),
+            'token' => $token
+        ]);
     }
 
     private function sendOtpVerification(User $user)
