@@ -18,7 +18,7 @@ class LoginTest extends TestCase
 
         $response = $this->postJson('/api/login', [
             'email' => $user->email,
-            'password' => $user->plain_password
+            'password' => 'P@ssword123'
         ]);
 
         $response->assertStatus(200)
@@ -39,7 +39,7 @@ class LoginTest extends TestCase
 
         $response = $this->postJson('/api/login', [
             'email' => ucfirst($user->email),
-            'password' => $user->plain_password
+            'password' => 'P@ssword123'
         ]);
 
         $response->assertStatus(200)
@@ -60,7 +60,7 @@ class LoginTest extends TestCase
 
         $response = $this->postJson('/api/login', [
             'email' => $user->email,
-            'password' => $user->plain_password
+            'password' => 'P@ssword123'
         ]);
 
         $response->assertStatus(403);
@@ -84,7 +84,7 @@ class LoginTest extends TestCase
 
         $response = $this->postJson('/api/login', [
             'email' => $wrongEmail,
-            'password' => $user->plain_password
+            'password' => 'P@ssword123'
         ]);
 
         $response->assertStatus(404);
