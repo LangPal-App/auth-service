@@ -20,6 +20,7 @@ class SendEmailToQueue implements ShouldQueue
         if ($event->emailTemplate == 'email_verification_otp') {
             $emailData['data'] = [
                 'name' => $event->user->name,
+                'email' => $event->user->email,
                 'otp' => $event->user->email_verification_otp
             ];
         }
