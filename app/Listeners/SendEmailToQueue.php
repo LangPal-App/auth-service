@@ -13,7 +13,7 @@ class SendEmailToQueue implements ShouldQueue
     {
         $emailData = [
             'recipient' => $event->user->email,
-            'template' => $event->emailTemplate,
+            'template_name' => $event->emailTemplate,
             'data' => [],
         ];
 
