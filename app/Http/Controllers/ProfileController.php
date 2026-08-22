@@ -28,4 +28,23 @@ class ProfileController extends Controller
 
         return $this->success('Profile updated successfully', new UserResource($user));
     }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'currentPassword' => 'required|string',
+            'newPassword' => 'required|string|min:8',
+        ]);
+
+        $user = auth()->user();
+
+        if (!\Hash::check($request->input('currentPassword'), $user->password)) {
+            throw new HttpException(422, 'Current password is incorrect');
+        }
+
+        $user->password = bcrypt($request->input('newPassword'));
+        $user->save();
+
+        return $this->success('Password updated successfully');
+    }
 }
