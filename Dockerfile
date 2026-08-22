@@ -2,7 +2,6 @@ FROM php:8.4-fpm
 
 RUN apt update && apt install -y \
     nginx \
-    git \
     unzip \
     libzip-dev \
     libonig-dev \
@@ -20,13 +19,13 @@ WORKDIR /var/www/html
 
 COPY . .
 
-RUN composer install --optimize-autoloader
-
-RUN chown -R www-data:www-data storage bootstrap/cache
+RUN composer install --optimize-autoloader && rm -rf /root/.composer
 
 COPY .docker/nginx/nginx.conf /etc/nginx/nginx.conf
 
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R 755 public
+
 EXPOSE 80
 
-CMD php-fpm --daemonize && \
-    nginx -g "daemon off;" 
+CMD ["sh", "-c", "php-fpm --daemonize && nginx -g 'daemon off;'"]
