@@ -47,4 +47,22 @@ class ProfileController extends Controller
 
         return $this->success('Password updated successfully');
     }
+
+    public function uploadProfileImage(Request $request)
+    {
+        $request->validate([
+            'profileImage' => 'required|file|image|max:5120',
+        ]);
+
+        $user = auth()->user();
+
+        $path = saveInputFile($request->file('profileImage'), 'profiles/' . $user->id);
+
+        $user->profile_image = url($path);
+        $user->save();
+
+        return $this->success('Profile picture uploaded successfully', [
+            'profileImage' => $user->profile_image
+        ]);
+    }
 }

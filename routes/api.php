@@ -14,4 +14,5 @@ Route::middleware('auth:api')->group(function() {
     Route::get('/profile', [ProfileController::class, 'show'])->name('getProfile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('updateProfile');
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('updatePassword');
+    Route::patch('/profile/image', [ProfileController::class, 'uploadProfileImage'])->name('uploadProfileImage');
 });
