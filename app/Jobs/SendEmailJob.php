@@ -8,6 +8,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Log;
 
 class SendEmailJob implements ShouldQueue
 {
@@ -22,6 +23,13 @@ class SendEmailJob implements ShouldQueue
 
     public function handle()
     {
-        Queue::connection('rabbitmq')->pushRaw(json_encode($this->emailData), 'email_queue');
+        try {
+            Queue::connection('rabbitmq')->pushRaw(json_encode($this->emailData), 'email_queue');
+        } catch (\Throwable $e) {
+            Log::error('Failed to push email job to rabbitmq: ' . $e->getMessage(), [
+                'exception' => $e,
+                'emailData' => $this->emailData
+            ]);
+        }
     }
 }
