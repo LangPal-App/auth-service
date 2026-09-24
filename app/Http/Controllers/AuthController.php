@@ -110,7 +110,10 @@ class AuthController extends Controller
 
         if (!$user->email_verified_at) {
             Log::warning('User login failed | Unverified user', ['email' => $request->email]);
-            return $this->failed('Account not verified please verify your account first.', [], 403);
+            $errorMessage = 'Account not verified please verify your account first.';
+            return $this->failed($errorMessage, [
+                'UnverifiedAccount' => $errorMessage
+            ], 403);
         }
 
         Log::info('User logged in successfully', ['email' => $request->email]);
