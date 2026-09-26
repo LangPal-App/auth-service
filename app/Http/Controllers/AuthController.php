@@ -29,7 +29,7 @@ class AuthController extends Controller
 
         $this->sendOtpVerification($user);
 
-        return $this->success('User registered successfully. Please check your email for verification.', [], 201);
+        return $this->success(__('messages.registered_successfully'), [], 201);
     }
 
     public function verifyOtp(Request $request)
@@ -40,24 +40,24 @@ class AuthController extends Controller
         ])->first();
 
         if (!$user) {
-            return $this->failed('Wrong OTP', [], 400);
+            return $this->failed(__('messages.wrong_otp'), [], 400);
         }
 
         if ($user->email_verified_at) {
             $user->email_verification_otp_blocked_until = Carbon::now()->addDay();
             $user->save();
-            return $this->failed('Sorry something went wrong');
+            return $this->failed(__('messages.something_went_wrong'));
         }
 
         if ($this->otpExpired($user)) {
-            return $this->failed('OTP has expired. Please request a new one.', [], 400);
+            return $this->failed(__('messages.otp_expired'), [], 400);
         }
 
         $user->email_verified_at = now();
         $user->save();
         $token = JWTAuth::fromUser($user);
 
-        return $this->success("User is verified successfully.", [
+        return $this->success(__('messages.verified_successfully'), [
             'user' => new UserResource($user),
             'token' => $token
         ]);
@@ -68,33 +68,33 @@ class AuthController extends Controller
         $user = User::whereEmail($request->email)->first();
 
         if (!$user) {
-            return $this->failed('Email not found.', [], 404);
+            return $this->failed(__('messages.email_not_found'), [], 404);
         }
 
         if ($user->email_verified_at) {
             $user->email_verification_otp_blocked_until = Carbon::now()->addDay();
             $user->save();
-            return $this->failed('Sorry something went wrong');
+            return $this->failed(__('messages.something_went_wrong'));
         }
 
         if ($this->isUserOtpBlocked($user)) {
-            return $this->failed('You are blocked for 24 hours. Please try again tomorrow.', [], 400);
+            return $this->failed(__('messages.otp_blocked'), [], 400);
         }
 
         if ($user->email_verification_otp_attempts == 3) {
             $user->email_verification_otp_blocked_until = now()->addDay();
             $user->email_verification_otp_attempts = 0;
             $user->save();
-            return $this->failed('Too many OTP resend attempts. You have been blocked for 24 hours. Please try again tomorrow.', [], 400);
+            return $this->failed(__('messages.too_many_otp_attempts'), [], 400);
         }
 
         if (!$this->otpCoolDownPassed($user)) {
-            return $this->failed('Please wait 1 minute before resending OTP', [], 429);
+            return $this->failed(__('messages.otp_cooldown'), [], 429);
         }
 
         $this->sendOtpVerification($user);
 
-        return $this->success('OTP has been sent to your email.');
+        return $this->success(__('messages.otp_sent'));
     }
 
     public function login(LoginRequest $request)
@@ -103,14 +103,14 @@ class AuthController extends Controller
 
         if (!$token = JWTAuth::attempt($credentials)) {
             Log::warning('User login failed', ['email' => $request->email]);
-            return $this->failed('Wrong email or password', [], 404);
+            return $this->failed(__('messages.wrong_credentials'), [], 404);
         }
 
         $user = auth()->user();
 
         if (!$user->email_verified_at) {
             Log::warning('User login failed | Unverified user', ['email' => $request->email]);
-            $errorMessage = 'Account not verified please verify your account first.';
+            $errorMessage = __('messages.account_not_verified');
             return $this->failed($errorMessage, [
                 'UnverifiedAccount' => $errorMessage
             ], 403);
@@ -118,7 +118,7 @@ class AuthController extends Controller
 
         Log::info('User logged in successfully', ['email' => $request->email]);
 
-        return $this->success("User logged in successfully.", [
+        return $this->success(__('messages.logged_in_successfully'), [
             'user' => new UserResource($user),
             'token' => $token
         ]);
